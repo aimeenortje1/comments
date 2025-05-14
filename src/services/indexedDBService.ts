@@ -2,6 +2,7 @@ const DB_NAME = 'commentsDB';
 const DB_VERSION = 1;
 const COMMENTS_STORE = "Comments"
 
+// TODO: future-improvement: make generic to add any data to any store
 class IndexedDBService {
     private static instance: IndexedDBService | null;
     private db: IDBDatabase | null = null;
@@ -27,7 +28,6 @@ class IndexedDBService {
             dbOpenDBRequest.onupgradeneeded = (event: IDBVersionChangeEvent) => {
                 this.db = (event.target as IDBOpenDBRequest).result;
 
-                //  TODO: future-improvement: expand to accept different stores
                 if (!this.db.objectStoreNames.contains(COMMENTS_STORE)) {
                     const store = this.db.createObjectStore(COMMENTS_STORE, {keyPath: 'id', autoIncrement: true});
                     store.createIndex('authorId', 'authorId', {unique: false});
@@ -50,8 +50,6 @@ class IndexedDBService {
         });
     }
 
-    // TODO: fix types, cant have generic and then specifically the comments store
-    // TODO: future-improvement: make generic to add any data to any store
     public async create(data: Comment): Promise<Comment> {
         const db = await this.getDB();
         return new Promise((resolve, reject) => {
@@ -101,6 +99,28 @@ class IndexedDBService {
             }
         });
 
+    }
+
+    public async delete(id: number): Promise<boolean> {
+        const db = await this.getDB();
+        return new Promise((resolve, reject) => {
+            if (db) {
+                const transaction = db.transaction(COMMENTS_STORE, 'readwrite');
+                const store = transaction.objectStore(COMMENTS_STORE);
+
+                const request = store.delete(id);
+
+                request.onsuccess = () => {
+                    resolve(true);
+                };
+
+                request.onerror = (event: Event) => {
+                    reject((event.target as IDBRequest).error);
+                };
+            } else {
+                reject("Database is not initialized");
+            }
+        })
     }
 }
 
