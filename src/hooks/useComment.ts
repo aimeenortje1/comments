@@ -1,4 +1,3 @@
-// Create a new hook: useComments.ts
 import { useState } from "react";
 import type { Comment as CommentType } from "../components/Comments/types.ts";
 import { useDatabase } from "./useDatabase.ts";
@@ -7,17 +6,21 @@ export const useComments = (initialComments: CommentType[]) => {
     const [comments, setComments] = useState<CommentType[]>(initialComments);
     const [isDbReady, dbService] = useDatabase();
 
-    const handleAddComment = async (newComment) => {
+    const handleAddComment = async (newComment: CommentType) => {
         try {
-            const savedComment = await dbService.create(newComment);
+            const savedComment = await dbService.add(newComment);
             setComments([...comments, savedComment]);
-
-            // TODO: add online sync
-            // if (isOnline) {
-            //   syncComment(savedComment);
-            // }
-
             return savedComment;
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            throw error;
+        }
+    };
+
+    const handleDeleteComment = async (id: number ) => {
+        try {
+            await dbService.delete(id);
+            return;
         } catch (error) {
             console.error('Error adding comment:', error);
             throw error;
@@ -27,6 +30,7 @@ export const useComments = (initialComments: CommentType[]) => {
     return {
         comments,
         isDbReady,
-        handleAddComment
+        handleAddComment,
+        handleDeleteComment
     };
 };

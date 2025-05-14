@@ -50,7 +50,7 @@ class IndexedDBService {
         });
     }
 
-    public async create(data: Comment): Promise<Comment> {
+    public async add(data: Comment): Promise<Comment> {
         const db = await this.getDB();
         return new Promise((resolve, reject) => {
             if (db) {
@@ -123,6 +123,5 @@ class IndexedDBService {
         })
     }
 }
-
 
 export default IndexedDBService;

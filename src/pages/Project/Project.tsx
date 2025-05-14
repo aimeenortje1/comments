@@ -1,37 +1,16 @@
 import type {ProjectType} from './types.ts'
-import type {Comment as CommentType} from "../../components/Comments/types.ts";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {CommentForm} from "../../components/Comments/CommentForm.tsx";
-import {useDatabase} from "../../hooks/useDatabase.ts";
 import {CommentList} from "../../components/Comments/CommentList.tsx";
+import {useComments} from "../../hooks/useComment.ts";
 
 
 export const Project = ({project}: { project: ProjectType }) => {
-
-    const [comments, setComments] = useState<CommentType[]>(project.comments);
-    const [isDbReady, dbService] = useDatabase();
+    const {comments, isDbReady, handleAddComment, handleDeleteComment} = useComments(project.comments);
 
     useEffect(() => {
         console.log({isDbReady});
-    }, [isDbReady, dbService]);
-
-    //TODO: move to hook
-    const handleAddComment = async (newComment) => {
-        try {
-            const savedComment = await dbService.create(newComment);
-            setComments([...comments, savedComment]);
-
-            // TODO: add online sync
-            // if (isOnline) {
-            //     syncComment(savedComment);
-            // }
-
-            return savedComment;
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            throw error;
-        }
-    };
+    }, [isDbReady]);
 
     return (
         <>
@@ -41,7 +20,8 @@ export const Project = ({project}: { project: ProjectType }) => {
                 <div className="col-md-8">
                     <div className="card mb-4">
                         <div className="card-body">
-                            <CommentForm projectId={project.id} onCommentAdded={handleAddComment}/>
+                            <CommentForm projectId={project.id}
+                                         onCommentAdded={handleAddComment}/>
                         </div>
                     </div>
 
@@ -56,6 +36,7 @@ export const Project = ({project}: { project: ProjectType }) => {
                                 <CommentList
                                     comments={comments}
                                     onCommentAdded={handleAddComment}
+                                    onCommentDeleted={handleDeleteComment}
                                 />
                             )}
                         </div>

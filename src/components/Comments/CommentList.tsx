@@ -5,7 +5,7 @@ import type {Comment as CommentType} from './types';
 interface CommentListProps {
     comments: CommentType[];
     onCommentAdded: (comment: Omit<CommentType, 'id' | 'timestamp' | 'pendingSync'>) => Promise<CommentType>;
-
+    onCommentDeleted: (id: number) => Promise<boolean>;
 }
 
 export const CommentList: React.FC<CommentListProps> = ({comments, onCommentAdded, onCommentDeleted}) => {

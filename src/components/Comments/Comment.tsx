@@ -10,7 +10,7 @@ interface CommentProps {
     level?: number;
 }
 
-export const Comment: React.FC<CommentProps> = ({comment, comments, onCommentAdded, level = 0}) => {
+export const Comment: React.FC<CommentProps> = ({comment, comments, onCommentAdded, onCommentDeleted, level = 0}) => {
     const [showReplyForm, setShowReplyForm] = useState<boolean>(false);
     const replies = comments.filter(c => c.parentId === comment.id);
 
@@ -20,7 +20,7 @@ export const Comment: React.FC<CommentProps> = ({comment, comments, onCommentAdd
     };
 
     const handleDelete = async (id: number) => {
-        console.log("implement delete")
+        await onCommentDeleted(id);
     }
 
     const formattedDate = new Date(comment.createdAt).toLocaleString();
@@ -64,6 +64,7 @@ export const Comment: React.FC<CommentProps> = ({comment, comments, onCommentAdd
                             comment={reply}
                             comments={comments}
                             onCommentAdded={onCommentAdded}
+                            onCommentDeleted={onCommentDeleted}
                             level={level + 1}
                         />
                     ))}
